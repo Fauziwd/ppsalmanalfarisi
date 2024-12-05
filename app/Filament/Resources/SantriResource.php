@@ -9,6 +9,10 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\BulkAction;
+use GrahamCampbell\ResultType\Success;
+use Maatwebsite\Excel\Facades\Excel; // Import library Excel
+use App\Exports\SantriExport; // Export class yang akan dibuat
 
 class SantriResource extends Resource
 {
@@ -151,10 +155,10 @@ class SantriResource extends Resource
                 Tables\Columns\BadgeColumn::make('status_yatim_piatu')
                     ->label('Status Yatim/Piatu')
                     ->colors([
-                        'success' => '1', // Hijau jika status "Ya"
-                        'danger' => '0',  // Merah jika status "Tidak"
+                        'success' => fn ($state): bool => $state === 'Yatim', // Hijau jika status "Ya"
+                        'danger' => fn ($state): bool => $state === 'Tidak',  // Merah jika status "Tidak"
                     ])
-                    ->getStateUsing(fn ($record) => $record->status_yatim_piatu == 1 ? 'Ya' : 'Tidak'),
+                    ->getStateUsing(fn ($record) => $record->status_yatim_piatu ? 'Yatim' : 'Tidak'),
             ])
             ->filters([])
             ->actions([
@@ -162,6 +166,12 @@ class SantriResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
+                BulkAction::make('export')
+                    ->label('Export to Excel')
+                    ->icon('heroicon-o-document')
+                    ->action(function () {
+                        return Excel::download(new SantriExport, 'santri.xlsx');
+                    }),
             ]);
     }
 

@@ -19,4 +19,6 @@ Route::middleware('auth')->group(function () {
     // Route untuk fitur Santri (CRUD)
     Route::get('/santri/create', [SantriController::class, 'create'])->name('santri.create');
     Route::post('/santri', [SantriController::class, 'store'])->name('santri.store');
+
+    Route::get('users/export/', [SantriController::class, 'export']);
 });

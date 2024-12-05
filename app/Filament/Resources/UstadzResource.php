@@ -83,7 +83,7 @@ class UstadzResource extends Resource
                         'success' => fn ($state): bool => $state === 'Menikah', // Hijau untuk Menikah
                         'gray' => fn ($state): bool => $state === 'Jomblo', // Abu-abu untuk Belum Menikah
                     ])
-                    ->getStateUsing(fn ($record) => $record->status_menikah ? 'Menikah' : 'Jomblo'),                
+                    ->getStateUsing(fn ($record) => $record->status_menikah  ? 'Menikah' : 'Jomblo'),                
             ])
             ->filters([])
             ->actions([

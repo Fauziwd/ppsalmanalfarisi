@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Santri;
 use Illuminate\Http\Request;
+use App\Exports\SantriExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SantriController extends Controller
 {
@@ -40,5 +42,9 @@ class SantriController extends Controller
         Santri::create($request->all());
 
         return redirect()->route('santri.create')->with('success', 'Data Santri berhasil disimpan!');
+    }
+    public function export() 
+    {
+        return Excel::download(new SantriExport, 'users.xlsx');
     }
 }
