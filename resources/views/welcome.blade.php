@@ -40,7 +40,7 @@
         </div>
         <h1 class="text-2xl font-bold text-yellow-400 mb-4">Selamat Datang!</h1>
         <p class="text-gray-400 mb-6">Sistem Manajemen Sekolah untuk mengelola data dengan mudah dan aman. Klik tombol di bawah untuk masuk ke dashboard admin.</p>
-        <p id="loading-text" class="text-yellow-400 mb-4 hidden">Anda sedang  masuk...</p>
+        <p id="loading-text" class="text-yellow-400 mb-4 hidden">Mohon Menunggu...</p>
         <a href="/admin/login" id="login-button" class="btn-primary w-full py-3 rounded-lg block">Masuk sebagai Admin</a>
     </div>
 
