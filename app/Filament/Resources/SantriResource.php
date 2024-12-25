@@ -16,7 +16,6 @@ use App\Exports\SantriExport; // Export class yang akan dibuat
 
 class SantriResource extends Resource
 {
-
     protected static ?string $model = Santri::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-folder';
@@ -34,33 +33,26 @@ class SantriResource extends Resource
                             ->label('No')
                             ->numeric()
                             ->required(),
-
                         Forms\Components\TextInput::make('nis')
                             ->label('NIS')
                             ->numeric()
                             ->required(),
-
                         Forms\Components\TextInput::make('nama')
                             ->label('Nama Santri')
                             ->required(),
-
                         Forms\Components\TextInput::make('lulusan')
                             ->label('Lulusan')
                             ->required(),
-
                         Forms\Components\TextInput::make('asal')
                             ->label('Asal')
                             ->required(),
-
                         Forms\Components\DatePicker::make('ttl')
                             ->label('Tanggal Lahir')
                             ->required(),
-
                         Forms\Components\TextInput::make('anak_ke')
                             ->label('Anak Ke')
                             ->numeric()
                             ->required(),
-
                         Forms\Components\Select::make('status_yatim_piatu')
                             ->label('Status Yatim/Piatu')
                             ->options([
@@ -68,53 +60,41 @@ class SantriResource extends Resource
                                 '1' => 'Ya',
                             ])
                             ->required(),
-
                         Forms\Components\TextInput::make('bapak')
                             ->label('Nama Bapak')
                             ->required(),
-
                         Forms\Components\TextInput::make('pekerjaan_bapak')
                             ->label('Pekerjaan Bapak')
                             ->required(),
-
                         Forms\Components\TextInput::make('no_hp_bapak')
                             ->label('Nomor HP Bapak')
                             ->tel()
                             ->required(),
-
                         Forms\Components\TextInput::make('ibu')
                             ->label('Nama Ibu')
                             ->required(),
-
                         Forms\Components\TextInput::make('pekerjaan_ibu')
                             ->label('Pekerjaan Ibu')
                             ->required(),
-
                         Forms\Components\TextInput::make('no_hp_ibu')
                             ->label('Nomor HP Ibu')
                             ->tel()
                             ->required(),
-
                         Forms\Components\Textarea::make('alamat')
                             ->label('Alamat')
                             ->required(),
-
                         Forms\Components\TextInput::make('kelurahan')
                             ->label('Kelurahan')
                             ->required(),
-
                         Forms\Components\TextInput::make('kecamatan')
                             ->label('Kecamatan')
                             ->required(),
-
                         Forms\Components\TextInput::make('kota')
                             ->label('Kota')
                             ->required(),
-
                         Forms\Components\TextInput::make('provinsi')
                             ->label('Provinsi')
                             ->required(),
-
                         Forms\Components\TextInput::make('kode_pos')
                             ->label('Kode Pos')
                             ->numeric()
@@ -132,33 +112,36 @@ class SantriResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('no')
                     ->label('No')
-                    ->sortable(),
-
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('nis')
                     ->label('NIS')
-                    ->sortable(),
-
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama Santri')
-                    ->sortable(),
-
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('lulusan')
-                    ->label('Lulusan'),
-
+                    ->label('Lulusan')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('asal')
-                    ->label('Asal'),
-
+                    ->label('Asal')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('ttl')
                     ->label('Tanggal Lahir')
-                    ->date(),
-
+                    ->date()
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\BadgeColumn::make('status_yatim_piatu')
                     ->label('Status Yatim/Piatu')
                     ->colors([
-                        'success' => fn ($state): bool => $state === 'Yatim', // Hijau jika status "Ya"
-                        'danger' => fn ($state): bool => $state === 'Tidak',  // Merah jika status "Tidak"
+                        'success' => 'masih', // Hijau jika status "Ya"
+                        'danger' => 'yatim', // Merah jika status "Tidak"
                     ])
-                    ->getStateUsing(fn ($record) => $record->status_yatim_piatu ? 'Yatim' : 'Tidak'),
+                    ->getStateUsing(fn ($record) => $record->status_yatim_piatu ? 'yatim' : 'masih'),
             ])
             ->filters([])
             ->actions([
@@ -172,7 +155,8 @@ class SantriResource extends Resource
                     ->action(function () {
                         return Excel::download(new SantriExport, 'santri.xlsx');
                     }),
-            ]);
+            ])
+            ->headerActions([]); // Tambahkan action di header tabel (opsional)
     }
 
     /**

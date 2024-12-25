@@ -1,0 +1,6 @@
+.fixed-size {
+    width: 500px; /* Atur lebar tetap sesuai kebutuhan */
+    height: 400px; /* Atur tinggi tetap sesuai kebutuhan */
+    overflow-y: auto; /* Tambahkan scroll vertikal */
+    overflow-x: hidden; /* Sembunyikan scroll horizontal */
+}

@@ -9,6 +9,9 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\BulkAction;
+use Maatwebsite\Excel\Facades\Excel; // Import library Excel
+use App\Exports\UstadzExport; // Export class yang akan dibuat
 
 class UstadzResource extends Resource
 {
@@ -28,19 +31,15 @@ class UstadzResource extends Resource
                         Forms\Components\TextInput::make('nama')
                             ->label('Nama Ustadz')
                             ->required(),
-
                         Forms\Components\TextInput::make('asal')
                             ->label('Asal')
                             ->required(),
-
                         Forms\Components\DatePicker::make('ttl')
                             ->label('Tanggal Lahir')
                             ->required(),
-
                         Forms\Components\TextInput::make('lulusan')
                             ->label('Lulusan')
                             ->required(),
-
                         Forms\Components\Select::make('status_menikah')
                             ->label('Menikah/Lajang')
                             ->options([
@@ -48,7 +47,6 @@ class UstadzResource extends Resource
                                 '0' => 'Lajang',
                             ])
                             ->required(),
-
                         Forms\Components\Textarea::make('alamat')
                             ->label('Alamat')
                             ->required(),
@@ -65,25 +63,27 @@ class UstadzResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nama')
                     ->label('Nama Ustadz')
-                    ->sortable(),
-    
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('asal')
-                    ->label('Asal'),
-    
+                    ->label('Asal')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('ttl')
                     ->label('Tanggal Lahir')
-                    ->date(),
-    
+                    ->date()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('lulusan')
-                    ->label('Lulusan'),
-    
-                    Tables\Columns\BadgeColumn::make('status_menikah')
+                    ->label('Lulusan')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\BadgeColumn::make('status_menikah')
                     ->label('Status Menikah')
                     ->colors([
-                        'success' => fn ($state): bool => $state === 'Menikah', // Hijau untuk Menikah
-                        'gray' => fn ($state): bool => $state === 'Jomblo', // Abu-abu untuk Belum Menikah
+                        'success' => 'Menikah', // Hijau jika status "Menikah"
+                        'gray' => 'Jomblo', // Abu-abu jika status "Jomblo"
                     ])
-                    ->getStateUsing(fn ($record) => $record->status_menikah  ? 'Menikah' : 'Jomblo'),                
+                    ->getStateUsing(fn ($record) => $record->status_menikah ? 'Menikah' : 'Jomblo'),
             ])
             ->filters([])
             ->actions([
@@ -91,8 +91,14 @@ class UstadzResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
+                BulkAction::make('export')
+                    ->label('Export to Excel')
+                    ->icon('heroicon-o-document')
+                    ->action(function () {
+                        return Excel::download(new UstadzExport, 'ustadz.xlsx');
+                    }),
             ]);
-    }    
+    }
 
     /**
      * Define relasi.
