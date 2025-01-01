@@ -1,45 +1,36 @@
-<?php
+<x-filament::page>
+    {{-- Widget --}}
+    <div>
+        @foreach ($widgets as $widget)
+            {{ $widget }}
+        @endforeach
+    </div>
 
-namespace App\Filament\Pages;
-
-use Filament\Pages\Dashboard as BaseDashboard;
-use App\Filament\Widgets\SantriTableWidget;
-use Filament\Widgets\AccountWidget;
-
-class Dashboard extends BaseDashboard
-{
-    /**
-     * Mengatur jumlah kolom layout grid dashboard.
-     */
-    protected function getColumns(): int
-    {
-        return 2; // Layout menggunakan 2 kolom: kiri kecil, kanan besar
-    }
-
-    /**
-     * Mengatur widget yang akan ditampilkan di dashboard.
-     */
-    protected function getWidgets(): array
-    {
-        return [
-            // Widget kolom kiri atas
-            [
-                'widget' => AccountWidget::class,
-                'columnSpan' => 1,
-                'class' => 'widget-small', // Tambahkan kelas CSS
-            ],
-            // Widget kolom kiri bawah
-            [
-                'widget' => SantriTableWidget::class,
-                'columnSpan' => 1,
-                'class' => 'widget-small', // Tambahkan kelas CSS
-            ],
-            // Widget kolom kanan besar
-            [
-                'widget' => SantriTableWidget::class,
-                'columnSpan' => 1,
-                'class' => 'widget-large', // Tambahkan kelas CSS
-            ],
-        ];
-    }
-}
+    {{-- Modal untuk menampilkan detail santri --}}
+    <div 
+        x-data="{ showModal: false, santri: null }" 
+        x-on:open-santri-modal.window="showModal = true; santri = $event.detail.santri"
+        x-show="showModal" 
+        class="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-75"
+        style="display: none;"
+    >
+        <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h2 class="text-xl font-bold mb-4">Detail Santri</h2>
+            <template x-if="santri">
+                <div>
+                    <p><strong>Nama:</strong> <span x-text="santri.nama"></span></p>
+                    <p><strong>NIS:</strong> <span x-text="santri.nis"></span></p>
+                    <p><strong>Asal:</strong> <span x-text="santri.asal"></span></p>
+                    <p><strong>Lulusan:</strong> <span x-text="santri.lulusan"></span></p>
+                    <p><strong>Tanggal Lahir:</strong> <span x-text="santri.ttl"></span></p>
+                </div>
+            </template>
+            <button 
+                class="mt-4 bg-red-500 text-white px-4 py-2 rounded"
+                @click="showModal = false"
+            >
+                Tutup
+            </button>
+        </div>
+    </div>
+</x-filament::page>

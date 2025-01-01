@@ -7,6 +7,7 @@
 </head>
 <body>
     <!-- Body Content -->
+    
     @livewireScripts
 </body>
 </html>

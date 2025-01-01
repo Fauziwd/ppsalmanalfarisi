@@ -2,17 +2,17 @@
 
 namespace App\Filament\Widgets;
 
+use App\Models\Santri;
 use Filament\Tables;
 use Filament\Widgets\TableWidget as BaseWidget;
-use App\Models\Santri;
 use Illuminate\Database\Eloquent\Builder;
 
 class SantriTableWidget extends BaseWidget
 {
     public $searchQuery = '';
-    public $selectedSantri = null;
+    public $selectedSantri = null; // Properti untuk menyimpan detail santri yang dipilih
 
-    protected $listeners = ['filterSantri' => 'updateSearchQuery', 'openSantriModal' => 'openSantriModal'];
+    protected $listeners = ['filterSantri' => 'updateSearchQuery'];
 
     public function updateSearchQuery($query)
     {
@@ -20,19 +20,31 @@ class SantriTableWidget extends BaseWidget
         $this->refreshTable();
     }
 
-    public function openSantriModal($santriId)
+    protected function refreshTable()
     {
-        $this->selectedSantri = Santri::find($santriId);
-        $this->dispatchBrowserEvent('open-modal');
+        $this->emit('refreshTable');
     }
 
+    protected function getViewData(): array
+    {
+        return [
+            'santriList' => Santri::all(), // Data semua santri
+            'selectedSantri' => $this->selectedSantri, // Santri yang dipilih
+        ];
+    }
+
+    public function selectSantri($santriId): void
+    {
+        $this->selectedSantri = Santri::find($santriId);
+    }
+    
     protected function getTableQuery(): Builder
     {
         return Santri::query()
             ->when($this->searchQuery, function ($query) {
-                $query->where('nama', 'like', '%' . $this->searchQuery . '%')
-                      ->orWhere('nis', 'like', '%' . $this->searchQuery . '%')
-                      ->orWhere('asal', 'like', '%' . $this->searchQuery . '%');
+                $query->where('nama', 'like', "%{$this->searchQuery}%")
+                    ->orWhere('nis', 'like', "%{$this->searchQuery}%")
+                    ->orWhere('asal', 'like', "%{$this->searchQuery}%");
             });
     }
 
@@ -43,52 +55,40 @@ class SantriTableWidget extends BaseWidget
                 ->label('No')
                 ->sortable()
                 ->searchable()
-                ->action(function (Santri $record) {
-                    $this->openSantriModal($record->id);
-                }),
+                ->action(fn(Santri $record) => $this->showSantriDetail($record)),
+
             Tables\Columns\TextColumn::make('nis')
                 ->label('NIS')
                 ->sortable()
                 ->searchable()
-                ->action(function (Santri $record) {
-                    $this->openSantriModal($record->id);
-                }),
+                ->action(fn(Santri $record) => $this->showSantriDetail($record)),
+
             Tables\Columns\TextColumn::make('nama')
                 ->label('Nama Santri')
                 ->sortable()
                 ->searchable()
-                ->action(function (Santri $record) {
-                    $this->openSantriModal($record->id);
-                }),
+                ->action(fn(Santri $record) => $this->showSantriDetail($record)),
+
             Tables\Columns\TextColumn::make('lulusan')
                 ->label('Lulusan')
-                ->sortable()
-                ->action(function (Santri $record) {
-                    $this->openSantriModal($record->id);
-                }),
+                ->sortable(),
+
             Tables\Columns\TextColumn::make('asal')
                 ->label('Asal')
-                ->sortable()
-                ->action(function (Santri $record) {
-                    $this->openSantriModal($record->id);
-                }),
+                ->sortable(),
+
             Tables\Columns\TextColumn::make('ttl')
                 ->label('Tanggal Lahir')
                 ->date()
-                ->sortable()
-                ->action(function (Santri $record) {
-                    $this->openSantriModal($record->id);
-                }),
+                ->sortable(),
+
             Tables\Columns\BadgeColumn::make('status_yatim_piatu')
                 ->label('Status Yatim/Piatu')
                 ->colors([
-                    'success' => 'Masih', 
+                    'success' => 'Masih',
                     'danger' => 'Yatim',
                 ])
-                ->getStateUsing(fn ($record) => $record->status_yatim_piatu ? 'Masih' : 'Yatim')
-                ->action(function (Santri $record) {
-                    $this->openSantriModal($record->id);
-                }),
+                ->getStateUsing(fn($record) => $record->status_yatim_piatu ? 'Masih' : 'Yatim'),
         ];
     }
 
@@ -97,9 +97,7 @@ class SantriTableWidget extends BaseWidget
         return [
             Tables\Actions\Action::make('viewDetails')
                 ->label('View Details')
-                ->action(function (Santri $record) {
-                    $this->openSantriModal($record->id);
-                }),
+                ->action(fn(Santri $record) => $this->showSantriDetail($record)),
         ];
     }
 
@@ -113,17 +111,21 @@ class SantriTableWidget extends BaseWidget
     public function getTableWrapperClasses(): array
     {
         return [
-            'w-96', // Lebar tetap 24rem (96 * 0.25rem)
-            'h-96', // Tinggi tetap 24rem (96 * 0.25rem)
-            'overflow-y-auto', // Tambahkan scroll vertikal
-            'overflow-x-hidden', // Sembunyikan scroll horizontal
+            'w-full',
+            'overflow-y-auto',
+            'overflow-x-hidden',
         ];
     }
 
-    protected function getViewData(): array
+    private function showSantriDetail(Santri $record)
     {
-        return [
-            'selectedSantri' => $this->selectedSantri,
-        ];
+        $this->selectedSantri = $record; // Menyimpan data santri yang dipilih
+    }
+
+    public function render(): \Illuminate\Contracts\View\View
+    {
+        return view('filament.widgets.santri-table-widget', [
+            'selectedSantri' => $this->selectedSantri, // Mengirim data detail santri ke view
+        ]);
     }
 }
